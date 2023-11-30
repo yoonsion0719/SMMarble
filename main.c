@@ -237,7 +237,7 @@ int main(int argc, const char * argv[]) {
     
     
     //3. SM Marble game starts ---------------------------------------------------------------------------------
-    while (cur_player[turn].flag_graduate=0) //is anybody graduated?
+    while (1) //is anybody graduated?
     {
         int die_result;
         
