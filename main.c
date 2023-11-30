@@ -76,7 +76,7 @@ void generatePlayers(int n, int initEnergy) //generate a new player
      for (i=0;i<n;i++)
      {
          //input name
-         printf("input player %i's name", i); //??? ???? 
+         printf("input player %i's name: ", i); //??? ???? 
          scanf("%s", cur_player[i].name);
          fflush(stdin);
          
@@ -110,25 +110,26 @@ int rolldie(int player)
     return (rand()%MAX_DIE + 1);
 }
 
-#if 0
+
 //action code when a player stays at a node
 void actionNode(int player)
 {
 	int type=smmObj_getNodeType(cur_player[player].position);
-    switch(type)
+    
+	switch(type)
     {
         //case lecture:
-        case SMMNODE_TYPE_LECTURE;
-        	if
+        case SMMNODE_TYPE_LECTURE:
+        	if (type=0)
         	cur_player[player].accumCredit+=smmObj_getNodeCredit(cur_player[player].position);
-        	cur_player[player].energy+=smmObj_getNodeEnergy(cur_player[player].position);
-        	breank;
+        	cur_player[player].energy-=smmObj_getNodeEnergy(cur_player[player].position);
+        	break;
 		
 		default:
             break;
     }
 }
-#endif
+
 
 void goForward(int player, int step)
 {
@@ -228,34 +229,36 @@ int main(int argc, const char * argv[]) {
         scanf("%d", &player_nr);
         fflush(stdin);
     }
-    while (player_nr > 0 || player_nr <  MAX_PLAYER);
+    while (player_nr < 0 || player_nr >  MAX_PLAYER);
     
     generatePlayers(player_nr, initEnergy);
     
     
     
-    #if 0
+    
     //3. SM Marble game starts ---------------------------------------------------------------------------------
-    while () //is anybody graduated?
+    while (cur_player[turn].flag_graduate=0) //is anybody graduated?
     {
         int die_result;
         
         //4-1. initial printing
-        //printPlayerStatus();
+    	printPlayerStatus();
         
         //4-2. die rolling (if not in experiment)        
-        //die_result = rolldie();
+        die_result = rolldie(turn);
         
         //4-3. go forward
-        //goForward();
+        goForward(turn,die_result);
 
 		//4-4. take action at the destination node of the board
-        //actionNode();
+        actionNode(turn);
         
         //4-5. next turn
+        turn = (turn + 1)%player_nr;
         
     }
-    #endif
-    system("PAUSE");
+    
+    
     return 0;
+    
 }
