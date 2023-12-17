@@ -29,64 +29,80 @@ char* smmObj_getTypeName(int type)
       return (char*)smmNodeName[type];
 }
 
+
+typedef enum smmObjGrade {
+	smmObjGrade_Ap =0,
+	smmObjGrade_A0,
+	smmObjGrade_Am,
+	smmObjGrade_Bp,
+	smmObjGrade_B0,
+	smmObjGrade_Bm,
+	smmObjGrade_Cp,
+	smmObjGrade_C0,
+	smmObjGrade_Cm
+}smmObjGrade_e;
+
+
 //1.구조체 형식 정의
 typedef struct smmObject {
 	char name[MAX_CHARNAME];
+	smmObjType_e objType;
 	int type;
 	int credit;
-	int energy;	
+	int energy;
+	smmObjGrade_e grade;
 }smmObject_t;
  
-//2. 구조체 배열 변수 선언
-static smmObject_t smm_node[MAX_NODE];
 
-
-#if 0
-static char smmObj_name[MAX_NODE][MAX_CHARNAME];
-static int smmObj_type[MAX_NODE];
-static int smmObj_credit[MAX_NODE];
-static int smmObj_energy[MAX_NODE];
-#endif
-
-static int smmObj_noNode=0;
+//static smmObject_t smm_node[MAX_NODE];
+//static int smmObj_noNode=0;
 
 //3. 기존 함수의 수정 및 새로 작성 
 //object generation
-void smmObj_genNode(char* name, int type, int credit, int energy)
+void* smmObj_genObject(char* name, smmObjType_e objType, int type, int credit, int energy, smmObjGrade_e grade)
 {
-	#if 0
-    strcpy(smm_node[smmObj_noNode].name, name);
-    smmObj_type[smmObj_noNode] = type;
-    smmObj_credit[smmObj_noNode] = credit;
-    smmObj_energy[smmObj_noNode] = energy;
-    #endif
+	smmObject_t* ptr;
     
-    strcpy(smm_node[smmObj_noNode].name, name);
-    smm_node[smmObj_noNode].type= type;
-    smm_node[smmObj_noNode].credit= credit;
-    smm_node[smmObj_noNode].energy= energy;
+    ptr= (smmObject_t*)malloc(sizeof(smmObject_t));
     
-    smmObj_noNode++;
+    //strcpy(smm_node[smmObj_noNode].name, name);
+    strcpy(ptr->name, name);
+    ptr->objType=objType;
+    ptr->type=type;
+    ptr->credit=credit;
+    ptr->energy=energy;
+    ptr->grade=grade;
+    
+    return ptr;
 }
 
-char* smmObj_getNodeName(int node_nr)
+//3. 기존 함수의 수정 및 새로 작성  
+char* smmObj_getNodeName(void* obj)
 {
-    return smm_node[node_nr].name;
+	smmObject_t* ptr = (smmObject_t*)obj;
+    return ptr->name;
 }
 
-int smmObj_getNodeType(int node_nr)
+//3. 기존 함수의 수정 및 새로 작성 
+int smmObj_getNodeType(void* obj)
 {
-    return smm_node[node_nr].type;
+    //return smm_node[node_nr].type;
+    smmObject_t* ptr = (smmObject_t*)obj;
+    return ptr->type;
 }
 
-int smmObj_getNodeCredit(int node_nr)
+int smmObj_getNodeCredit(void* obj)
 {
-    return smm_node[node_nr].credit;
+    //return smm_node[node_nr].credit;
+    smmObject_t* ptr = (smmObject_t*)obj;
+    return ptr->credit;
 }
 
-int smmObj_getNodeEnergy(int node_nr)
+int smmObj_getNodeEnergy(void* obj)
 {
-    return smm_node[node_nr].energy;
+    //return smm_node[node_nr].energy;
+    smmObject_t* ptr = (smmObject_t*)obj;
+    return ptr->energy;
 }
 #if 0
 
