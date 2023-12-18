@@ -161,38 +161,8 @@ void actionNode(int player)
 void goForward(int player, int step)
 {
 	void *boardPtr; 
-	/*
-	int aft_posit = cur_player[player].position + step;
-	
-	//for Circulation structure
-	if (aft_posit >= board_nr)
-	{
-		aft_posit -= board_nr;
-	}
-	//'goForward' after position
-
-
-
-	//Go forward one by one
-	while (cur_player[player].position != aft_posit)
-	{
-		
-		//check position & go 1 step
-		if (cur_player[player].position == board_nr-1)
-		{
-			cur_player[player].position = 0;//for Circulation structure
-		}
-		else
-		{
-			cur_player[player].position += 1;
-		}
-		
-		//player's new position & print node Name
-		boardPtr=smmdb_getData(LISTNO_NODE, cur_player[player].position);
-		printf("%s\n", smmObj_getNodeName(boardPtr));
-	}*/
-	
 	int i;
+	
 	for (i=0;i<step;i++)
 	{
 		//check position & go 1 step
@@ -207,6 +177,7 @@ void goForward(int player, int step)
 		
 		//player's new position & print node Name
 		boardPtr=smmdb_getData(LISTNO_NODE, cur_player[player].position);
+		//수정할 필요 있음!!! 
 		printf("%s\n", smmObj_getNodeName(boardPtr));
 	}
 	
