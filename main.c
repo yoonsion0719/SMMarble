@@ -15,6 +15,7 @@
 #define FOODFILEPATH "marbleFoodConfig.txt"
 #define FESTFILEPATH "marbleFestivalConfig.txt"
 
+//
 static int board_nr;
 static int food_nr;
 static int festival_nr;
@@ -74,7 +75,7 @@ void printPlayerStatus(void)//print all player status at the beginning of each t
 	{
 		printf("%s : credit %i, energy %i, position %i\n",
 		cur_player[i].name,
-		cur_player[i].credit,
+		cur_player[i].accumCredit,
 		cur_player[i].energy,
 		cur_player[i].position);
 	}
@@ -103,7 +104,7 @@ void generatePlayers(int n, int initEnergy)//generate a new player
 	}
 }
 
-
+//Operates based on user input
 int rolldie(int player)
 {
 	char c;
@@ -112,6 +113,7 @@ int rolldie(int player)
 	fflush(stdin);
 	
 	#if 0
+	//to print out grades when a user enters 'g'
 	if (c=='g')
 		printGrades(player);
 	#endif
@@ -128,19 +130,19 @@ void actionNode(int player)
 	char *name=smmObj_getNodeName(boardPtr);
 	void *gradePtr;
 	
+	//For lectures, you must save the player's credit and energy changes
 	switch(type)
 	{
-		case SMMNODE_TYPE_LECTURE://?????? ??? ???? ?? ?????? 
-			// if?? ?? ?? ??????? 
+		case SMMNODE_TYPE_LECTURE:  
 			cur_player[player].accumCredit += smmObj_getNodeCredit(boardPtr);
 			cur_player[player].energy -= smmObj_getNodeEnergy(boardPtr);
 			
-			//grade generation
+			//grade Randomly generation
 			gradePtr = smmObj_genObject(name, smmObjType_grade, 0, 
 						smmObj_getNodeCredit(boardPtr), 0, rand()%9);
-			//??????? ?¡À???? ???? ???? ??? 
+			//saving to a list 
 			smmdb_addTail(LISTNO_OFFSET_GRADE, gradePtr);
-			break;// ???? break ????
+			break;
 		
 		default:
 			
@@ -151,13 +153,33 @@ void actionNode(int player)
 
 }
 
+// Need 3 modifications
+// 1. Circulation structure 
+//2. Output of node name passing by when moving 
+//3. Supplement energy when passing home
 
 void goForward(int player, int step)
 {
 	//player's new position
 	void *boardPtr;
-	cur_player[player].position +=step;
-	boardPtr=smmdb_getData(LISTNO_NODE, cur_player[player].position); 
+	//a preliminary position 
+	int pre_position=cur_player[player].position;
+	pre_position+=step;
+	
+	if (pre_position <= board_nr)
+	{
+		//do nothing 
+	}else //If player passes the last node
+	{
+		//go backwards by the number of nodes before taking a step
+		cur_player[player].position -= board_nr;
+	}
+	
+	//step ¹âÀ½ 
+	cur_player[player].position +=step; 
+	boardPtr=smmdb_getData(LISTNO_NODE, cur_player[player].position);
+	
+	
 	
 	printf("%s go node %i (name: %s)\n",
 	cur_player[player].name,
@@ -290,7 +312,7 @@ int main(void){
 		//4.1. initial printing
 		printPlayerStatus();
 		
-		//4.2. die rolling (if not in experiment
+		//4.2. die rolling (if not in experiment)
 		die_result = rolldie(turn);
 		
 		//4.3. go forward
