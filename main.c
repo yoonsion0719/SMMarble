@@ -154,33 +154,64 @@ void actionNode(int player)
 }
 
 // Need 3 modifications
-// 1. Circulation structure 
+// 1. Circulation structure
 //2. Output of node name passing by when moving 
 //3. Supplement energy when passing home
 
 void goForward(int player, int step)
 {
-	//player's new position
-	void *boardPtr;
-	//a preliminary position 
-	int pre_position=cur_player[player].position;
-	pre_position+=step;
+	void *boardPtr; 
+	/*
+	int aft_posit = cur_player[player].position + step;
 	
-	if (pre_position <= board_nr)
+	//for Circulation structure
+	if (aft_posit >= board_nr)
 	{
-		//do nothing 
-	}else //If player passes the last node
+		aft_posit -= board_nr;
+	}
+	//'goForward' after position
+
+
+
+	//Go forward one by one
+	while (cur_player[player].position != aft_posit)
 	{
-		//go backwards by the number of nodes before taking a step
-		cur_player[player].position -= board_nr;
+		
+		//check position & go 1 step
+		if (cur_player[player].position == board_nr-1)
+		{
+			cur_player[player].position = 0;//for Circulation structure
+		}
+		else
+		{
+			cur_player[player].position += 1;
+		}
+		
+		//player's new position & print node Name
+		boardPtr=smmdb_getData(LISTNO_NODE, cur_player[player].position);
+		printf("%s\n", smmObj_getNodeName(boardPtr));
+	}*/
+	
+	int i;
+	for (i=0;i<step;i++)
+	{
+		//check position & go 1 step
+		if (cur_player[player].position == board_nr-1)
+		{
+			cur_player[player].position = 0;//for Circulation structure
+		}
+		else
+		{
+			cur_player[player].position += 1;
+		}
+		
+		//player's new position & print node Name
+		boardPtr=smmdb_getData(LISTNO_NODE, cur_player[player].position);
+		printf("%s\n", smmObj_getNodeName(boardPtr));
 	}
 	
-	//step ¹âÀ½ 
-	cur_player[player].position +=step; 
-	boardPtr=smmdb_getData(LISTNO_NODE, cur_player[player].position);
 	
-	
-	
+	//to output information of the node reached by the player
 	printf("%s go node %i (name: %s)\n",
 	cur_player[player].name,
 	cur_player[player].position,
