@@ -122,6 +122,16 @@ int rolldie(int player)
 }
 
 
+// actionNode Modification : 
+//SMMNODE_TYPE_RESTAURANT << 그냥 에너지 보충 인가 
+//SMMNODE_TYPE_LABORATORY << 주사위 굴려서 탈출하는 동작  
+//SMMNODE_TYPE_HOME <<< flag_graduate 확인 및 에너지 보충 
+//SMMNODE_TYPE_GOTOLAB <<< 실험실 노드로 이동 
+//SMMNODE_TYPE_FOODCHANCE << 점심시간,간식시간에 음식카드로 에너지 보충 
+//SMMNODE_TYPE_FESTIVAL << 랜덤으로 미션 출력 후 수행 
+// 
+
+
 //action code when a player stays at a node
 void actionNode(int player)
 {
@@ -133,7 +143,7 @@ void actionNode(int player)
 	//For lectures, you must save the player's credit and energy changes
 	switch(type)
 	{
-		case SMMNODE_TYPE_LECTURE:  
+		case SMMNODE_TYPE_LECTURE:
 			cur_player[player].accumCredit += smmObj_getNodeCredit(boardPtr);
 			cur_player[player].energy -= smmObj_getNodeEnergy(boardPtr);
 			
@@ -143,9 +153,29 @@ void actionNode(int player)
 			//saving to a list 
 			smmdb_addTail(LISTNO_OFFSET_GRADE, gradePtr);
 			break;
-		
-		default:
 			
+	
+		#if 0
+		case SMMNODE_TYPE_RESTAURANT:
+			break;
+		
+		case SMMNODE_TYPE_LABORATORY:
+			break;
+			
+		case SMMNODE_TYPE_HOME:
+			break;
+			
+		case SMMNODE_TYPE_GOTOLAB:
+			break;
+			
+		case SMMNODE_TYPE_FOODCHANCE:
+			break;
+			
+		case SMMNODE_TYPE_FESTIVAL:
+			break;
+		#endif
+		
+		default:	
 			break;	
 			
 	}
@@ -154,9 +184,9 @@ void actionNode(int player)
 }
 
 // Need 3 modifications
-// 1. Circulation structure
-//2. Output of node name passing by when moving 
-//3. Supplement energy when passing home
+// 1. Circulation structure -ok! 
+//2. Output of node name passing by when moving -ok!
+//3. Supplement energy when passing home -actionNode에서 수정할 예정 
 
 void goForward(int player, int step)
 {
@@ -169,6 +199,7 @@ void goForward(int player, int step)
 		if (cur_player[player].position == board_nr-1)
 		{
 			cur_player[player].position = 0;//for Circulation structure
+			//'actionNode' 추가해서 에너지 보충할 수 있도록 하기 
 		}
 		else
 		{
@@ -300,7 +331,7 @@ int main(void){
 	}
 	while (player_nr < 0 || player_nr >  MAX_PLAYER);
 	
-	//??????? cur_player ???? 
+	//
 	cur_player=(player_t*)malloc(player_nr*sizeof(player_t));
 	generatePlayers(player_nr, initEnergy);
 	
