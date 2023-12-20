@@ -30,6 +30,7 @@ typedef struct player {
 	int position;
 	char name[MAX_CHARNAME];
 	int accumCredit;
+	int flag_experiment; //실험중 여부를 나타내는 변수 
 	int flag_graduate;
 }player_t;
 
@@ -40,6 +41,8 @@ void generatePlayers(int n, int initEnergy);
 //generate a new player
 int isGraduated(void);
 //check if any player is graduated
+int rolldie(int player)
+//Operates based on user input
 void goForward(int player, int step);
 //make player go "step" steps on the board (check if player is graduated)
 void printPlayerStatus(void);
@@ -101,6 +104,8 @@ void generatePlayers(int n, int initEnergy)//generate a new player
 		//set etc
 		cur_player[i].accumCredit=0;
 		cur_player[i].flag_graduate=0;
+		cur_player[i].flag_experiment=0;
+		
 	}
 }
 
@@ -117,7 +122,7 @@ int rolldie(int player)
 	if (c=='g')
 		printGrades(player);
 	#endif
-		
+	
 	return (rand()%MAX_DIE + 1);
 }
 
@@ -131,6 +136,13 @@ int rolldie(int player)
 //SMMNODE_TYPE_FESTIVAL << 랜덤으로 미션 출력 후 수행 
 // 
 
+		#if 0
+		
+			
+		case SMMNODE_TYPE_FESTIVAL:
+			break;
+			 
+		#endif
 
 //action code when a player stays at a node
 void actionNode(int player)
@@ -139,6 +151,8 @@ void actionNode(int player)
 	int type=smmObj_getNodeType(boardPtr);
 	char *name=smmObj_getNodeName(boardPtr);
 	void *gradePtr;
+	void *foodPtr;
+	int i;
 	
 	//For lectures, you must save the player's credit and energy changes
 	switch(type)
@@ -153,27 +167,62 @@ void actionNode(int player)
 			//saving to a list 
 			smmdb_addTail(LISTNO_OFFSET_GRADE, gradePtr);
 			break;
-			
 	
-		#if 0
 		case SMMNODE_TYPE_RESTAURANT:
+			//energy replenishment
+			cur_player[player].energy += smmObj_getNodeEnergy(boardPtr);
 			break;
 		
 		case SMMNODE_TYPE_LABORATORY:
+			//플레이어가 실험중 상태일 때, 실험 수행
+			if (cur_player[player].flag_experiment == 1)
+			{
+				//1. 실험 성공 기준값 랜덤으로 지정
+				int exp_success= rand()%6;
+				//2. 주사위 돌리기 
+				int exp_result=rolldie(player);
+				//3. 기준값 이상이면 실험중 상태 해제 
+				if (exp_result >= exp_success)
+					cur_player[player].flag_experiment = 0;
+			}
 			break;
 			
 		case SMMNODE_TYPE_HOME:
+			//flag_graduate modification 
+			if (cur_player[player].accumCredit >= GRADUATE_CREDIT)
+			{
+				cur_player[player].flag_graduate = 1;
+				isGraduated();//졸업 수행 
+			}
+			//energy replenishment
+			cur_player[player].energy += smmObj_getNodeEnergy(boardPtr);
 			break;
 			
 		case SMMNODE_TYPE_GOTOLAB:
+			//1. 플레이어를 실험중 상태로 전환 
+			cur_player[player].flag_experiment=1;
+			//2. 실험실 노드를 찾는 작업 /반복문? (실험실이 한 개라고 가정) 
+			for (i=0;i<board_nr;i++)
+			{
+				boardPtr= smmdb_getData(LISTNO_NODE, i);
+				if (smmObj_getNodeType(boardPtr) == SMMNODE_TYPE_LABORATORY) 
+				{
+					//3. Move to the laboratory
+					cur_player[player].position = i;
+					break;
+				}
+			}
+			
 			break;
 			
 		case SMMNODE_TYPE_FOODCHANCE:
-			break;
+			//음식 카드를 랜덤으로 선택 후 에너지 보충
+			//foodtype를 랜덤으로 선정 
 			
-		case SMMNODE_TYPE_FESTIVAL:
+			foodPtr=smmdb_getData(LISTNO_FOODCARD,rand()%food_nr);
+			//energy replenishment from foodcard 
+			cur_player[player].energy += smmObj_getNodeEnergy(foodPtr);
 			break;
-		#endif
 		
 		default:	
 			break;	
@@ -199,7 +248,7 @@ void goForward(int player, int step)
 		if (cur_player[player].position == board_nr-1)
 		{
 			cur_player[player].position = 0;//for Circulation structure
-			//'actionNode' 추가해서 에너지 보충할 수 있도록 하기 
+			actionNode(player);//'actionNode' 추가 
 		}
 		else
 		{
@@ -245,6 +294,8 @@ int main(void){
 	int initEnergy;
 	int turn=0;
 	
+	int foodtype=0; //음식 유형을 저장하기 위해서 만든 변수임요
+	
 	board_nr =0;
 	food_nr =0;
 	festival_nr =0;
@@ -287,7 +338,7 @@ int main(void){
     		
 	}
 	
-	#if 0
+	
 	//1.2. food card config
 	if ((fp = fopen(FOODFILEPATH,"r")) == NULL)
     {
@@ -295,16 +346,20 @@ int main(void){
         return -1;
     }
     
-    printf("\n\nReading food card component......\n");
-    while () //read a food parameter set
+    printf("\n\nReading food card component......\n"); 
+    while ( fscanf(fp, "%s %i", name, &energy) == 2 ) //read a food parameter set
     {
         //store the parameter set
+        void *foodObj = smmObj_genObject(name, smmObjType_card, foodtype, 0, energy, 0);
+        smmdb_addTail(LISTNO_FOODCARD, foodObj);
+        foodtype++;
+        food_nr++;
     }
     fclose(fp);
     printf("Total number of food cards : %i\n", food_nr);
     
     
-    
+    #if 0
     //1.3. festival card config 
     if ((fp = fopen(FESTFILEPATH,"r")) == NULL)
     {
@@ -345,11 +400,14 @@ int main(void){
 		//4.1. initial printing
 		printPlayerStatus();
 		
+		
 		//4.2. die rolling (if not in experiment)
-		die_result = rolldie(turn);
+		if(cur_player[turn].flag_experiment == 0)
+			die_result = rolldie(turn);//실험실에서 실험중일때를 제외하고 
 		
 		//4.3. go forward
-		goForward(turn,die_result);
+		if(cur_player[turn].flag_experiment == 0)
+			goForward(turn,die_result);//실험실에서 실험중일때를 제외하고
 		
 		//4.4. take action at the destination node of the board
 		actionNode(turn);

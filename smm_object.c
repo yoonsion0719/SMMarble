@@ -13,6 +13,7 @@
 #define MAX_NODE        100
 
 
+
 static char smmNodeName[SMMNODE_TYPE_MAX][MAX_CHARNAME] = {
        "강의",
        "식당",
@@ -23,11 +24,6 @@ static char smmNodeName[SMMNODE_TYPE_MAX][MAX_CHARNAME] = {
        "축제시간"
 };
 
-char* smmObj_getTypeName(int type)
-{
-	return (char*)smmNodeName[type];
- } 
- 
 
  
  //define object struct
@@ -41,7 +37,7 @@ char* smmObj_getTypeName(int type)
  }smmObject_t;
  
  
- //object generation
+//object generation
 void* smmObj_genObject(char* name, smmObjType_e objType, int type, 
 int credit, int energy, smmObjGrade_e grade)
 {
@@ -57,7 +53,16 @@ int credit, int energy, smmObjGrade_e grade)
 	
 	return ptr;
 }
+
+
+//노드 유형의 이름 출력 
+char* smmObj_getTypeName(int type)
+{
+	return (char*)smmNodeName[type];
+ } 
  
+
+
 //node name
 char* smmObj_getNodeName(void* obj)
 {

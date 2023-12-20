@@ -18,4 +18,5 @@
 #define MAX_PLAYER                  10
 
 
+
 #endif /* smm_common_h */
