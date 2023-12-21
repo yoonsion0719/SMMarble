@@ -15,7 +15,6 @@
 #define FOODFILEPATH "marbleFoodConfig.txt"
 #define FESTFILEPATH "marbleFestivalConfig.txt"
 
-//
 static int board_nr;
 static int food_nr;
 static int festival_nr;
@@ -49,14 +48,7 @@ void printPlayerStatus(void);
 //print all player status at the beginning of each turn
 void printGrades(int player);
 //print all the grade history of the player
-#if 0
-float calcAverageGrade(int player);
-//calculate average grade of the player
-smmGrade_e takeLecture(int player, char *lectureName, int credit);
-//take the lecture (insert a grade of the player)
-void* findGrade(int player, char *lectureName);
-//find the grade from the player's grade history
-#endif
+
 
 
 //print all the grade history of the player
@@ -129,21 +121,6 @@ int rolldie(int player)
 }
 
 
-
-#if 0	
-		
-		case SMMNODE_TYPE_LECTURE:
-			cur_player[player].accumCredit += smmObj_getNodeCredit(boardPtr);
-			cur_player[player].energy -= smmObj_getNodeEnergy(boardPtr);
-			
-			//grade Randomly generation
-			gradePtr = smmObj_genObject(name, smmObjType_grade, 0, 
-						smmObj_getNodeCredit(boardPtr), 0, rand()%9);
-			//saving to a list
-			smmdb_addTail(LISTNO_OFFSET_GRADE, gradePtr);
-			break;
-		
-#endif
 
 //action code when a player stays at a node
 void actionNode(int player)
@@ -230,11 +207,10 @@ void actionNode(int player)
 			break;
 			
 		case SMMNODE_TYPE_HOME:
-			//flag_graduate modification 
+			//flag_graduate modification
 			if (cur_player[player].accumCredit >= GRADUATE_CREDIT)
 			{
 				cur_player[player].flag_graduate = 1;
-				isGraduated();//player's Graduation!
 				break; 
 			}
 			//energy replenishment
@@ -316,7 +292,7 @@ void goForward(int player, int step)
 	
 	
 	//to output information of the player's destination
-	printf("%s's destination is %i (name: %s)\n",
+	printf("%s's destination is %i (name: %s)\n\n",
 	cur_player[player].name,
 	cur_player[player].position,
 	smmObj_getNodeName(boardPtr));
@@ -470,7 +446,8 @@ int main(void){
 			goForward(turn,die_result);//실험실에서 실험중일때를 제외하고
 		
 		//4.5. take action at the destination node of the board
-		actionNode(turn);
+		if (isGraduated() == 0)//
+			actionNode(turn);
 		
 		//4.6. next turn
 		nextTurn = (turn+1)%player_nr;
