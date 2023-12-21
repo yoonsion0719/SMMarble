@@ -64,18 +64,21 @@ void printGrades(int player)
 {
 	int i;
 	void *gradePtr;
+	printf("<%s's course history>\n", cur_player[player].name);
 	for (i=0;i<smmdb_len(LISTNO_OFFSET_GRADE+player);i++)
 	{
 		gradePtr=smmdb_getData(LISTNO_OFFSET_GRADE+player,i);
-		printf("Lecture's name and credit: %s (%i) Grade: %s\n", 
-		smmObj_getNodeName(gradePtr), smmObj_getNodeCredit(gradePtr), smmObj_getGradeGrade(gradePtr));//lecture's name & palyer's grade
+		printf("Lecture's name: %s (credit: %i) Grade: %s\n", smmObj_getNodeName(gradePtr), 
+		smmObj_getNodeCredit(gradePtr), smmObj_getGradeName(smmObj_getGradeGrade(gradePtr)));
 	}
+	printf("\n");
 }
 
-void printPlayerStatus(void)//print all player status at the beginning of each turn
+//print all player status at the beginning of each turn
+void printPlayerStatus(void)
 {
 	int i;
-	for (i=0;i<player_nr;i++)//player_nr ???? name,credit,energy,posit 
+	for (i=0;i<player_nr;i++)
 	{
 		printf("%s : credit %i, energy %i, position %i\n",
 		cur_player[i].name,
@@ -125,15 +128,13 @@ int rolldie(int player)
 	return (rand()%MAX_DIE + 1);
 }
 
-
-// actionNode Modification : 
-//SMMNODE_TYPE_RESTAURANT << 그냥 에너지 보충 인가 
-//SMMNODE_TYPE_LABORATORY << 주사위 굴려서 탈출하는 동작  
-//SMMNODE_TYPE_HOME <<< flag_graduate 확인 및 에너지 보충 
-//SMMNODE_TYPE_GOTOLAB <<< 실험실 노드로 이동 
-//SMMNODE_TYPE_FOODCHANCE << 점심시간,간식시간에 음식카드로 에너지 보충 
-//SMMNODE_TYPE_FESTIVAL << 랜덤으로 미션 출력 후 수행 
-// 
+#if 0
+//take the lecture (insert a grade of the player)
+smmGrade_e takeLecture(int player, char *lectureName, int credit)
+{
+	
+}
+#endif
 
 //action code when a player stays at a node
 void actionNode(int player)
@@ -211,7 +212,7 @@ void actionNode(int player)
 		case SMMNODE_TYPE_FOODCHANCE:
 			//Choose a food card at random and get energy
 			foodPtr=smmdb_getData(LISTNO_FOODCARD,rand()%food_nr);
-			printf("Wow!\nI got %s!\n", smmObj_getNodeName(foodPtr));
+			printf("Wow! Player %s got %s!\n", cur_player[player].name, smmObj_getNodeName(foodPtr));
 			//energy replenishment from foodcard
 			cur_player[player].energy += smmObj_getNodeEnergy(foodPtr);
 			break;
@@ -244,6 +245,7 @@ void goForward(int player, int step)
 	void *boardPtr; 
 	int i;
 	
+	printf("Dice's result is : %i\n\n", step);
 	for (i=0;i<step;i++)
 	{
 		//check position & go 1 step
@@ -431,7 +433,7 @@ int main(void){
 	
 	//5. game-ending action
 	//Congratulations to the winner
-	printf("Congratulations on your graduation! %s\n", cur_player[turn].name);
+	printf("\nCongratulations on your graduation! %s\n\n", cur_player[turn].name);
 	//Print out the name, credit, and grade of the course taken by the graduated player
 	printGrades(turn);
 	
