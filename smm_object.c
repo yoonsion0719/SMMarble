@@ -24,6 +24,18 @@ static char smmNodeName[SMMNODE_TYPE_MAX][MAX_CHARNAME] = {
        "축제시간"
 };
 
+ 
+static char smmGradeName[9][MAX_CHARNAME] = {
+	"A+",
+    "A0",
+    "A-",
+    "B+",
+    "B0",
+    "B-",
+    "C+",
+    "C0",
+    "C-"
+};
 
  
  //define object struct
@@ -61,6 +73,11 @@ char* smmObj_getTypeName(int type)
 	return (char*)smmNodeName[type];
  } 
  
+//grade name<- grade_e
+char* smmObj_getGradeName(smmObjGrade_e grade)
+{
+	return (char*)smmGradeName[grade];
+}
 
 
 //node name
@@ -88,10 +105,11 @@ int smmObj_getNodeEnergy(void* obj)
 	return ptr->energy;
 }
 
-#if 0
-//grade name<- grade_e
-char* smmObj_getGradeName(smmGrade_e grade)
+
+//gradeObj grade 
+int smmObj_getGradeGrade(void* obj)
 {
-	return smmGradeName[grade];
+	smmObject_t* ptr= (smmObject_t*)obj;
+	return ptr->grade;
 }
-#endif
+
